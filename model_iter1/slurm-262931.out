@@ -1,0 +1,46 @@
+Resetting modules to system default. Reseting $MODULEPATH back to system default. All extra directories will be removed from $MODULEPATH.
+Collecting package metadata (current_repodata.json): ...working... done
+Solving environment: ...working... done
+
+## Package Plan ##
+
+  environment location: /apps/easybuild/software/tinkercliffs-rome_a100/Anaconda3/2020.11
+
+  added / updated specs:
+    - scikit-image
+
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    conda-4.10.3               |   py38h06a4308_0         2.9 MB
+    ------------------------------------------------------------
+                                           Total:         2.9 MB
+
+The following packages will be SUPERSEDED by a higher-priority channel:
+
+  conda              conda-forge::conda-4.10.3-py38h578d9b~ --> pkgs/main::conda-4.10.3-py38h06a4308_0
+
+
+Proceed ([y]/n)? 
+
+Downloading and Extracting Packages
+conda-4.10.3         | 2.9 MB    |            |   0% conda-4.10.3         | 2.9 MB    | #####4     |  55% conda-4.10.3         | 2.9 MB    | ########## | 100% 
+Preparing transaction: ...working... done
+Verifying transaction: ...working... failed
+
+EnvironmentNotWritableError: The current user does not have write permissions to the target environment.
+  environment location: /apps/easybuild/software/tinkercliffs-rome_a100/Anaconda3/2020.11
+  uid: 2005176
+  gid: 2005176
+
+
+TENSORFLOW_TINKERCLIFFS_A100: Normal beginning of execution.
+Traceback (most recent call last):
+  File "trainModel.py", line 1, in <module>
+    from model import *
+  File "/beegfs/projects/cmda_capstone_2021/code/model_iter1/model.py", line 4, in <module>
+    import skimage.io as io
+ModuleNotFoundError: No module named 'skimage'
+TENSORFLOW_TINKERCLIFFS_A100: Normal end of execution.
