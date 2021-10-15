@@ -6,7 +6,7 @@ from matplotlib import pyplot
 from dataLoader import *
 
 # Load Training/Testing Data
-native_chips = load_data("../../data/training_sets/trainingset_descending_40.py")
+native_chips = load_data("../../../../../projects/cmda_capstone_2021_ti/data/training_sets/")
 
 # Construct model
 model = unet()
@@ -14,6 +14,6 @@ model = unet()
 
 # Fit Model
 preds = model.predict(native_chips)
-print(preds)
+print(preds[0])
 
 # Save Model
