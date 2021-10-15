@@ -6,7 +6,7 @@ from matplotlib import pyplot
 from dataLoader import *
 
 # Load Training/Testing Data
-native_chips = load_data("../../../../../projects/cmda_capstone_2021_ti/data/training_sets/")
+native_chips, _05masks = load_data("../../../../../projects/cmda_capstone_2021_ti/data/training_sets/")
 
 # Construct model
 model = unet()
