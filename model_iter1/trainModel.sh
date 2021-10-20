@@ -9,11 +9,8 @@
 
 #Load modules
 module reset
-module load cuda11.2/toolkit #hopefully will be added to defaults soon
-module load Anaconda3
 module load TensorFlow
-module Load Keras
-conda install scikit-image
+export PYTHONUSERBASE=/projects/cmda_capstone_2021_ti/pythonlibs
 
 #Run beginner tutorial
 echo "TENSORFLOW_TINKERCLIFFS_A100: Normal beginning of execution."

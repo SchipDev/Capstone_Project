@@ -1,0 +1,11 @@
+Resetting modules to system default. Reseting $MODULEPATH back to system default. All extra directories will be removed from $MODULEPATH.
+TENSORFLOW_TINKERCLIFFS_A100: Normal beginning of execution.
+2021-10-20 14:51:14.369495: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+Traceback (most recent call last):
+  File "trainModel.py", line 6, in <module>
+    from dataLoader import *
+  File "/home/shane99/capstone/Capstone_Project/model_iter1/dataLoader.py", line 25
+    _05mask_arr = img_to_array(05mask)
+                                ^
+SyntaxError: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers
+TENSORFLOW_TINKERCLIFFS_A100: Normal end of execution.
