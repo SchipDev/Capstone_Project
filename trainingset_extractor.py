@@ -5,8 +5,8 @@ import numpy as np
 # Global Variables
 SET_SIZE = int(sys.argv[1])    # Number of rows to extract into subset
 
-READ_PATH = "../../../../projects/cmda_capstone_2021_ti/data/Data/"   # Path of csv file to read from
-WRITE_PATH = "../../../../projects/cmda_capstone_2021_ti/data/training_sets/"    # Path of directory where output training csv file is to be saved
+READ_PATH = "/projects/cmda_capstone_2021_ti/data/data_summary_final_summary.csv"   # Path of csv file to read from
+WRITE_PATH = "/projects/cmda_capstone_2021_ti/data/training_sets/"    # Path of directory where output training csv file is to be saved
 
 summary = pd.read_csv(READ_PATH)
 print(summary.head(3))
