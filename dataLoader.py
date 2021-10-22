@@ -12,7 +12,7 @@ IMG_READ_PATH = "../../../../../projects/cmda_capstone_2021_ti/data/Data/"
 
 def load_data(path):
     data = pd.read_csv(path)
-    print(path + " loaded, " + len(data.index) + " records detected.")
+    #print(path + " loaded, " + len(data.index) + " records detected.")
     nchip_arr = np.array()
     _05mask_array = np.array()
     for im in data["Native_Chip_Name"]:
