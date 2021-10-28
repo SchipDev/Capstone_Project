@@ -15,22 +15,27 @@ def load_data(path):
     # print(path + " loaded, " + len(data.index) + " records detected.")
     nchip_arr = []
     _05mask_array = []
+    it1 = 0
+    it2 = 0
     for im in data["Native_Chip_Name"]:
         img_PIL = load_img(IMG_READ_PATH + "NativeChips/" + im, color_mode = "grayscale")
         img_array = img_to_array(img_PIL)
-        nchip_arr.append(img_array)
+        #img_array = img_array.reshape([-1,400, 400,1])
+        nchip_arr.append(np.asarray(img_array))
+        it1+= 1
 
-    for mask in data["05min_Lightning_Count"]:
+    for mask in data["05min_Mask_Name"]:
         _05mask = load_img(IMG_READ_PATH + "05masks/" + mask, color_mode="grayscale")
         _05mask_arr = img_to_array(_05mask)
         _05mask_arr = _05mask_arr.clip(max=5)
-        _05mask_array.append(_05mask_arr)
+        #_05mask_arr = _05mask_arr.reshape([-1,400, 400,1])
+        _05mask_array.append(np.asarray(_05mask_arr))
+        it2+=1
 
     
 
-
     
-    return nchip_arr, _05mask_array
+    return np.asarray(nchip_arr), np.asarray(_05mask_array)
 
     
 
