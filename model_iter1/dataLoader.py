@@ -10,6 +10,35 @@ from tensorflow.keras.preprocessing.image import array_to_img
 
 IMG_READ_PATH = "/projects/cmda_capstone_2021_ti/data/Data/"
 
+
+def blockshaped(arr, nrows, ncols):
+    """
+    Return an array of shape (n, nrows, ncols) where
+    n * nrows * ncols = arr.size
+
+    If arr is a 2D array, the returned array should look like n subblocks with
+    each subblock preserving the "physical" layout of arr.
+    """
+    h, w = arr.shape
+    assert h % nrows == 0, f"{h} rows is not evenly divisible by {nrows}"
+    assert w % ncols == 0, f"{w} cols is not evenly divisible by {ncols}"
+    return (arr.reshape(h//nrows, nrows, -1, ncols)
+               .swapaxes(1,2)
+               .reshape(-1, nrows, ncols))
+
+def unblockshaped(arr, h, w):
+    """
+    Return an array of shape (h, w) where
+    h * w = arr.size
+
+    If arr is of shape (n, nrows, ncols), n sublocks of shape (nrows, ncols),
+    then the returned array preserves the "physical" layout of the sublocks.
+    """
+    n, nrows, ncols = arr.shape
+    return (arr.reshape(h//nrows, -1, nrows, ncols)
+               .swapaxes(1,2)
+               .reshape(h, w))
+
 def load_data(path):
     data = pd.read_csv(path)
     # print(path + " loaded, " + len(data.index) + " records detected.")
@@ -27,9 +56,17 @@ def load_data(path):
     for mask in data["05min_Mask_Name"]:
         _05mask = load_img(IMG_READ_PATH + "05masks/" + mask, color_mode="grayscale")
         _05mask_arr = img_to_array(_05mask)
-        _05mask_arr = _05mask_arr.clip(max=5)
+        _05mask_arr = _05mask_arr.clip(max=1)
         #_05mask_arr = _05mask_arr.reshape([-1,400, 400,1])
-        _05mask_array.append(np.asarray(_05mask_arr))
+
+        segmented = blockshaped(_05mask_arr.reshape(400,400),10,10)
+        for i in range(len(segmented)):
+            if(np.max(segmented[i]) != 0):
+                segmented[i,:,:]=1
+        segmented = unblockshaped(segmented,400,400)
+        segmented = segmented.reshape(400,400,1)
+
+        _05mask_array.append(np.asarray(segmented))
         it2+=1
 
     
@@ -38,6 +75,4 @@ def load_data(path):
     return np.asarray(nchip_arr), np.asarray(_05mask_array)
 
     
-
-
 
