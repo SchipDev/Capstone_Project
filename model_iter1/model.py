@@ -8,6 +8,9 @@ from tensorflow.keras.models import *
 from tensorflow.keras.layers import *
 from tensorflow.keras.optimizers import *
 from tensorflow.keras.callbacks import ModelCheckpoint, LearningRateScheduler
+from tensorflow.keras.metrics import MeanIoU
+from tensorflow_addons.losses import SigmoidFocalCrossEntropy
+
 from tensorflow.keras import backend as keras
 
 def unet(pretrained_weights = None,input_size = (400,400,1)):
@@ -54,7 +57,11 @@ def unet(pretrained_weights = None,input_size = (400,400,1)):
 
     model = Model(inputs, conv10)
 
-    model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
+    # model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
+    mIOU = MeanIoU(num_classes=2)
+    sigLoss= SigmoidFocalCrossEntropy()
+   
+    model.compile(optimizer = Adam(lr = 1e-4), loss = [sigLoss], metrics=["accuracy", mIOU])
     
     #model.summary()
 

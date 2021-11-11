@@ -21,18 +21,19 @@ data_gen_args = dict(rotation_range=0,
                     height_shift_range=0,
                     shear_range=0,
                     zoom_range=0,
-                    horizontal_flip=True,
+                    horizontal_flip=False,
                     fill_mode='nearest')
-myGene = trainGenerator(2,'/projects/cmda_capstone_2021_ti/data/training_sets','NativeChips','05masks',data_gen_args,save_to_dir = None)
-print(myGene)
+myGene = trainGenerator(1,'/projects/cmda_capstone_2021_ti/data/training_sets','NativeChips','05masks',data_gen_args,save_to_dir = None)
+print()
 # Construct model
 model = unet()
 
 
 # Fit Model
-
 # history = model.fit(native_chips, _05masks, epochs=140)
-model.fit(myGene, epochs=140)
+model.fit(myGene, steps_per_epoch=4, epochs=4)
+# model.fit_generator(myGene, steps_per_epoch=3, epochs=1)
+
 # os.mkdir("model_iter1/model_accuracy")
 # plt.plot(history.history["accuracy"])
 # # plt.plot(history.history["val_accuracy"])
