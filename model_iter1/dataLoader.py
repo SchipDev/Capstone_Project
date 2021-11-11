@@ -40,19 +40,29 @@ def unblockshaped(arr, h, w):
                .swapaxes(1,2)
                .reshape(h, w))
 
+def prepareData(img, mask):
+    mask = mask.clip(max=1)
+    # segmented = blockshaped(mask.reshape(400,400),10,10)
+    # for i in range(len(segmented)):
+    #     if(np.max(segmented[i]) != 0):
+    #         segmented[i,:,:]=1
+    # segmented = unblockshaped(segmented,400,400)
+    # segmented = segmented.reshape(400,400,1)
+    img = img/255
+    return (img,mask)
+
+
+
 def load_data(path):
     data = pd.read_csv(path)
     # print(path + " loaded, " + len(data.index) + " records detected.")
     nchip_arr = []
     _05mask_array = []
-    it1 = 0
-    it2 = 0
     for im in data["Native_Chip_Name"]:
         img_PIL = load_img(IMG_READ_PATH + "NativeChips/" + im, color_mode = "grayscale")
         img_array = img_to_array(img_PIL)
         #img_array = img_array.reshape([-1,400, 400,1])
-        nchip_arr.append(np.asarray(img_array))
-        it1+= 1
+        nchip_arr.append(np.asarray(img_array)/255)
 
     for mask in data["05min_Mask_Name"]:
         _05mask = load_img(IMG_READ_PATH + "05masks/" + mask, color_mode="grayscale")
@@ -68,7 +78,6 @@ def load_data(path):
         segmented = segmented.reshape(400,400,1)
 
         _05mask_array.append(np.asarray(segmented))
-        it2+=1
 
     
 
@@ -108,7 +117,9 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
         seed = seed)
     train_generator = zip(image_generator, mask_generator)
     for (img,mask) in train_generator:
-        # img,mask = adjustData(img,mask,flag_multi_class,num_class)
+        img, mask = prepareData(img, mask)
+        print(img)
+        print(mask)
         yield (img,mask)
 
 

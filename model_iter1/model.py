@@ -61,7 +61,7 @@ def unet(pretrained_weights = None,input_size = (400,400,1)):
     mIOU = MeanIoU(num_classes=2)
     sigLoss= SigmoidFocalCrossEntropy()
    
-    model.compile(optimizer = Adam(lr = 1e-4), loss = [sigLoss], metrics=["accuracy", mIOU])
+    model.compile(optimizer = Adam(lr = 1e-4), loss = [sigLoss], metrics=["accuracy"]) #mIOU
     
     #model.summary()
 
