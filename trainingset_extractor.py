@@ -4,6 +4,8 @@ import numpy as np
 import os
 import shutil as sh
 
+# RGB chips have an alpha channel
+
 # Global Variables
 SET_SIZE = int(sys.argv[1])    # Number of rows to extract into subset
 

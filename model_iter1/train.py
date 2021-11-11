@@ -30,7 +30,7 @@ model = unet()
 
 
 # Fit Model
-history = model.fit(myGene, steps_per_epoch=4, epochs=20)
+history = model.fit(myGene, steps_per_epoch=10, epochs=50)
 
 try:
     os.mkdir("model_iter1/model_accuracy")
@@ -50,7 +50,7 @@ preds = model.predict(native_chips[0].reshape([-1,400, 400,1]))
 pred_img = preds[0]
 true_chip = native_chips[0]
 true_mask = _05masks[0]
-save_img("model_iter1/model_accuracy/trained_model_sample_pred.png", pred_img.clip(max=1))
+save_img("model_iter1/model_accuracy/trained_model_sample_pred.png", pred_img) # Show image and look at probab vals
 save_img("model_iter1/model_accuracy/Predicted_native_chip.png", true_chip)
 save_img("model_iter1/model_accuracy/True_Mask.png", true_mask)
 
