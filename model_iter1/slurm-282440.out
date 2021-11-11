@@ -1,9 +1,0 @@
-Resetting modules to system default. Reseting $MODULEPATH back to system default. All extra directories will be removed from $MODULEPATH.
-TENSORFLOW_TINKERCLIFFS_A100: Normal beginning of execution.
-Traceback (most recent call last):
-  File "trainModel.py", line 1, in <module>
-    from model import *
-  File "/home/shane99/capstone/Capstone_Project/model_iter1/model.py", line 4, in <module>
-    import skimage.io as io
-ModuleNotFoundError: No module named 'skimage'
-TENSORFLOW_TINKERCLIFFS_A100: Normal end of execution.
