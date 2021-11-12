@@ -9,6 +9,8 @@ from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing.image import array_to_img
 from tensorflow.keras.preprocessing.image import save_img
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau, CSVLogger
+
 import os
 import shutil as sh
 import errno
@@ -18,13 +20,15 @@ import matplotlib.pyplot as plt
 # Load Training/Testing Data
 #native_chips, _05masks = load_data("/projects/cmda_capstone_2021_ti/data/training_sets/trainingset_descending_500.csv")
 
-parent_data_dir = '/projects/cmda_capstone_2021_ti/data/'
+parent_data_dir = '/projects/cmda_capstone_2021_ti/data/training_sets'
 img_size=(400,400)
 batch_size = 9
 
 #Create data generators
-train_input_image_paths,train_target_image_paths = get_data_paths(parent_data_dir,'training_sets')
+train_input_image_paths,train_target_image_paths = get_data_paths(parent_data_dir,'Train')
+val_input_image_paths,val_target_image_paths = get_data_paths(parent_data_dir,'Val')
 train_gen = DataGather(batch_size, img_size, train_input_image_paths, train_target_image_paths,shuffle=True)
+val_gen = DataGather(batch_size, img_size, val_input_image_paths, val_target_image_paths,shuffle=True)
 print(len(train_gen))
 # data_gen_args = dict(rotation_range=0,
 #                     width_shift_range=0,
@@ -37,9 +41,14 @@ print(len(train_gen))
 # Construct model
 model = unet()
 
+mc = ModelCheckpoint(mode='min', filepath='model_iter1/model_accuracy/top-weights.h5', monitor='val_loss',save_best_only='True', save_weights_only='False', verbose=1)
+es = EarlyStopping(mode='min', monitor='val_loss', patience=25, verbose=0)
+rl = ReduceLROnPlateau(monitor='val_loss',factor=0.1,patience=5,verbose=1,mode="min",min_lr=0.000000001)
+cv = CSVLogger("model_iter1/model_accuracy/log.csv" , append=True , separator=',')
+callbacks = [mc, rl, cv, es]
 
 # Fit Model
-history = model.fit(train_gen, steps_per_epoch=len(train_gen)/batch_size, epochs=100)
+history = model.fit(train_gen, epochs=40, validation_data=val_gen, callbacks=callbacks) # steps_per_epoch=len(train_gen)/batch_size
 
 try:
     os.mkdir("model_iter1/model_accuracy")
@@ -49,24 +58,24 @@ except OSError as e:
     os.mkdir("model_iter1/model_accuracy")
 
 train_loss = history.history['loss']
-# val_loss = history.history['val_loss']
+val_loss = history.history['val_loss']
 fig,ax = plt.subplots(1)
 ax.plot(train_loss,label='train_loss')
-# ax.plot(val_loss,label='val_loss')
+ax.plot(val_loss,label='val_loss')
 plt.legend()
 plt.savefig('model_iter1/model_accuracy/Loss_Curves.png')
 plt.close()
     
 train_recall = history.history['recall']
 train_precision = history.history['precision']
-#val_recall = history.history['val_recall']
-#val_precision = history.history['val_precision']
+val_recall = history.history['val_recall']
+val_precision = history.history['val_precision']
     
 fig,ax = plt.subplots(1)
 ax.plot(train_recall,label='train_recall',color='red',linestyle='-')
-# ax.plot(val_recall,label='val_recall',color='red',linestyle='--')
+ax.plot(val_recall,label='val_recall',color='red',linestyle='--')
 ax.plot(train_precision,label='train_precision',color='blue',linestyle='-')
-# ax.plot(val_precision,label='val_precision',color='blue',linestyle='--')
+ax.plot(val_precision,label='val_precision',color='blue',linestyle='--')
 plt.legend()
 plt.savefig('model_iter1/model_accuracy/Precision_Recall.png')
 plt.close()
@@ -77,7 +86,7 @@ plt.close()
 # plt.xlabel("Epoch")
 # plt.savefig("model_iter1/model_accuracy/Accuracy_Plot.png")
 
-pred = model.predict(train_gen[150][0])
+pred = model.predict(train_gen[0][0])
 sample_image = train_gen[150][0][0]
 sample_gt = train_gen[150][1][0][:,:,0]
 pred = pred[0,:,:,0]

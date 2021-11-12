@@ -1,3 +1,4 @@
+from posixpath import split
 import sys
 import pandas as pd
 import numpy as np 
@@ -8,6 +9,7 @@ import shutil as sh
 
 # Global Variables
 SET_SIZE = int(sys.argv[1])    # Number of rows to extract into subset
+VAL_SET_SIZE = 201
 
 READ_PATH = "/projects/cmda_capstone_2021_ti/data/data_summary_final_summary.csv"   # Path of csv file to read from
 WRITE_PATH = "/projects/cmda_capstone_2021_ti/data/training_sets/"    # Path of directory where output training csv file is to be saved
@@ -36,13 +38,27 @@ training_set.to_csv(WRITE_PATH + "trainingset_descending_" + str(SET_SIZE) + ".c
 print(WRITE_PATH + "trainingset_descending_" + str(SET_SIZE) + ".csv" + "created with " + str(SET_SIZE) + "records!")
 
 #------------------------------------------------
+# Creating Train and validation sub-folders
+TRAIN_WRITE_PATH = os.path.join(WRITE_PATH, "Train/")
+VAL_WRITE_PATH = os.path.join(WRITE_PATH, "Val/")
+train_dir = os.mkdir(TRAIN_WRITE_PATH)
+val_dir = os.mkdir(VAL_WRITE_PATH)
+
 # Creating directory for training images
-nchip_path = os.path.join(WRITE_PATH, NCHIP_SUBPATH)
-rgbchip_path = os.path.join(WRITE_PATH, RGBCHIP_SUBPATH)
-five_path = os.path.join(WRITE_PATH, FIVE_MASK_SUBPATH)
-nchip_dir = os.mkdir(nchip_path)
-rgbchip_dir = os.mkdir(rgbchip_path)
-fivemask_dir = os.mkdir(five_path)
+nchip_path_t = os.path.join(TRAIN_WRITE_PATH, NCHIP_SUBPATH)
+rgbchip_path_t = os.path.join(TRAIN_WRITE_PATH, RGBCHIP_SUBPATH)
+five_path_t = os.path.join(TRAIN_WRITE_PATH, FIVE_MASK_SUBPATH)
+nchip_dir_t = os.mkdir(nchip_path_t)
+rgbchip_dir_t = os.mkdir(rgbchip_path_t)
+fivemask_dir_t = os.mkdir(five_path_t)
+
+nchip_path_v = os.path.join(VAL_WRITE_PATH, NCHIP_SUBPATH)
+rgbchip_path_v = os.path.join(VAL_WRITE_PATH, RGBCHIP_SUBPATH)
+five_path_v = os.path.join(VAL_WRITE_PATH, FIVE_MASK_SUBPATH)
+nchip_dir_v = os.mkdir(nchip_path_v)
+rgbchip_dir_v = os.mkdir(rgbchip_path_v)
+fivemask_dir_v = os.mkdir(five_path_v)
+
 print("All subfolders created succesfully")
 
 #------------------------------------------------
@@ -50,11 +66,18 @@ print("All subfolders created succesfully")
 
 zipped = zip(training_set["Colorized_Chip_Name"], training_set["Native_Chip_Name"], training_set["05min_Mask_Name"])
 record_loss = 0 # Records how many files are missing
+split_ctr = 0
 for color, native, mask05 in zipped:
     if (color != "None") and (native != "None") and (mask05 != "None"):
-        sh.copy(NCHIP_READ_PATH + native, nchip_path)
-        sh.copy(RGBCHIP_READ_PATH + color, rgbchip_path)
-        sh.copy(FIVE_MASK_READ_PATH + mask05, five_path)
+        if split_ctr >= SET_SIZE-VAL_SET_SIZE:
+            sh.copy(NCHIP_READ_PATH + native, nchip_path_v)
+            sh.copy(RGBCHIP_READ_PATH + color, rgbchip_path_v)
+            sh.copy(FIVE_MASK_READ_PATH + mask05, five_path_v)
+        else:
+            sh.copy(NCHIP_READ_PATH + native, nchip_path_t)
+            sh.copy(RGBCHIP_READ_PATH + color, rgbchip_path_t)
+            sh.copy(FIVE_MASK_READ_PATH + mask05, five_path_t)
+        split_ctr += 1
     else:
         record_loss += 1
 
