@@ -13,33 +13,19 @@ READ_PATH = "/projects/cmda_capstone_2021_ti/data/data_summary_final_summary.csv
 WRITE_PATH = "/projects/cmda_capstone_2021_ti/data/training_sets/"    # Path of directory where output training csv file is to be saved
 
 NCHIP_READ_PATH = "/projects/cmda_capstone_2021_ti/data/Data/NativeChips/"
+RGBCHIP_READ_PATH = "/projects/cmda_capstone_2021_ti/data/Data/ColorChips/"
 FIVE_MASK_READ_PATH = "/projects/cmda_capstone_2021_ti/data/Data/05masks/"
 
 NCHIP_SUBPATH = "NativeChips"
+RGBCHIP_SUBPATH = "ColorChips"
 FIVE_MASK_SUBPATH = "05masks"
 
 
 summary = pd.read_csv(READ_PATH)
 print(summary.head(3))
 
-# Convert the lightning count columns to numeric values
-for num in range(len(summary["05min_Lightning_Count"])):
-    if summary["05min_Lightning_Count"][num] == "None":
-        summary["05min_Lightning_Count"][num] = "0"
-
-summary["05min_Lightning_Count"] = pd.to_numeric(summary["05min_Lightning_Count"])
-
-for num in range(len(summary["15min_Lightning_Count"])):
-    if summary["15min_Lightning_Count"][num] == "None":
-        summary["15min_Lightning_Count"][num] = "0"
-
-summary["15min_Lightning_Count"] = pd.to_numeric(summary["15min_Lightning_Count"])
-
-for num in range(len(summary["30min_Lightning_Count"])):
-    if summary["30min_Lightning_Count"][num] == "None":
-        summary["30min_Lightning_Count"][num] = "0"
-
-summary["30min_Lightning_Count"] = pd.to_numeric(summary["30min_Lightning_Count"])
+cols = ['05min_Lightning_Count', '15min_Lightning_Count','30min_Lightning_Count']
+summary[cols] = summary[cols].apply(pd.to_numeric, errors='coerce')
 
 # Sort training set by number of lightning events in descending order
 summary.sort_values(by='05min_Lightning_Count', ascending=False)
@@ -52,23 +38,30 @@ print(WRITE_PATH + "trainingset_descending_" + str(SET_SIZE) + ".csv" + "created
 #------------------------------------------------
 # Creating directory for training images
 nchip_path = os.path.join(WRITE_PATH, NCHIP_SUBPATH)
+rgbchip_path = os.path.join(WRITE_PATH, RGBCHIP_SUBPATH)
 five_path = os.path.join(WRITE_PATH, FIVE_MASK_SUBPATH)
 nchip_dir = os.mkdir(nchip_path)
+rgbchip_dir = os.mkdir(rgbchip_path)
 fivemask_dir = os.mkdir(five_path)
 print("All subfolders created succesfully")
 
 #------------------------------------------------
 #Copying files from main folders to trainingset subfolders
 
-# Copying native chips
-for nchip in training_set["Native_Chip_Name"]:
-    sh.copy(NCHIP_READ_PATH + nchip, nchip_path)
+zipped = zip(training_set["Colorized_Chip_Name"], training_set["Native_Chip_Name"], training_set["05min_Mask_Name"])
+record_loss = 0 # Records how many files are missing
+for color, native, mask05 in zipped:
+    if (color != "None") and (native != "None") and (mask05 != "None"):
+        sh.copy(NCHIP_READ_PATH + native, nchip_path)
+        sh.copy(RGBCHIP_READ_PATH + color, rgbchip_path)
+        sh.copy(FIVE_MASK_READ_PATH + mask05, five_path)
+    else:
+        record_loss += 1
 
-# Copying 05 masks
-for fivemask in training_set["05min_Mask_Name"]:
-    sh.copy(FIVE_MASK_READ_PATH + fivemask, five_path)
-
-print("All images copied to subfolder succesfully!")
+if record_loss == 0:
+    print("All images copied to subfolder succesfully!")
+else:
+    print("Images copied to directories succesfully, " + str(record_loss) + " records were missing and could not be copied.")
 
 
 print("Executed succesfully, go train that model stud!")
