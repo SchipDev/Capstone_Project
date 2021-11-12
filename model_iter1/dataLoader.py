@@ -2,6 +2,11 @@ import pandas as pd
 import numpy as np
 from matplotlib import image
 import sys
+import os
+import random
+from skimage import io
+from PIL import Image
+import tensorflow as tf
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing.image import array_to_img
@@ -11,7 +16,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 IMG_READ_PATH = "/projects/cmda_capstone_2021_ti/data/Data/"
 
-
+# ======= Helper Functions =======
 def blockshaped(arr, nrows, ncols):
     """
     Return an array of shape (n, nrows, ncols) where
@@ -51,7 +56,31 @@ def prepareData(img, mask):
     img = img/255
     return (img,mask)
 
+def get_data_paths(parent_dir,tag):
+    input_dir = os.path.join(parent_dir,tag,'ColorChips')
+    target_dir = os.path.join(parent_dir,tag,'05masks')
+    input_img_paths = sorted(
+    [
+        os.path.join(input_dir, fname)
+        for fname in os.listdir(input_dir)
+        if fname.endswith(".png")
+    ])
+    
+    target_img_paths = sorted(
+        [
+            os.path.join(target_dir, fname)
+            for fname in os.listdir(target_dir)
+            if fname.endswith(".png")
+        ])
+    return input_img_paths,target_img_paths
 
+def full_generator(image_data_generator, mask_data_generator):
+    train_generator = zip(image_data_generator, mask_data_generator)
+    for (img, mask) in train_generator:
+        yield (img, mask)
+
+
+# ======= Data Loaders =======
 
 def load_data(path):
     data = pd.read_csv(path)
@@ -79,12 +108,9 @@ def load_data(path):
 
         _05mask_array.append(np.asarray(segmented))
 
-    
-
-    
     return np.asarray(nchip_arr), np.asarray(_05mask_array)
 
-    
+
 def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image_color_mode = "grayscale",
                     mask_color_mode = "grayscale",image_save_prefix  = "image",mask_save_prefix  = "mask",
                     flag_multi_class = False,num_class = 2,save_to_dir = None,target_size = (400,400),seed = 1):
@@ -124,4 +150,41 @@ def trainGenerator(batch_size,train_path,image_folder,mask_folder,aug_dict,image
 
 
     
+
+
+class DataGather(tf.keras.utils.Sequence):
+    """Helper to iterate over the data (as Numpy arrays)."""
+
+    def __init__(self, batch_size, img_size, input_img_paths, target_img_paths,shuffle=False):
+        self.batch_size = batch_size
+        self.img_size = img_size
+        self.input_img_paths = input_img_paths
+        self.target_img_paths = target_img_paths
+        if shuffle==True:
+            tmp = list(zip(self.input_img_paths,self.target_img_paths))
+            random.shuffle(tmp)
+            self.input_img_paths,self.target_img_paths = list(zip(*tmp))
+            
+    def __len__(self):
+        return len(self.target_img_paths) // self.batch_size
+
+    def __getitem__(self, idx):
+        """Returns tuple (input, target) correspond to batch #idx."""
+        i = idx * self.batch_size
+        batch_input_img_paths = self.input_img_paths[i : i + self.batch_size]
+        batch_target_img_paths = self.target_img_paths[i : i + self.batch_size]
+        
+        
+        x = np.zeros((self.batch_size,) + self.img_size + (3,), dtype="float32")
+        for j, path in enumerate(batch_input_img_paths):
+            img = np.array(load_img(path, target_size=self.img_size))/255.0
+            x[j] = img
+                
+        y = np.zeros((self.batch_size,) + self.img_size + (1,), dtype="float32")
+        for j, path in enumerate(batch_target_img_paths):
+            img = io.imread(path)
+            img = (img>0)*1 #convert to binary
+            img = img.astype('float32')           
+            y[j] = np.expand_dims(img, 2)
+        return x, y    
 
