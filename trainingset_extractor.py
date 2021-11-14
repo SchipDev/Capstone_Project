@@ -5,6 +5,7 @@ import numpy as np
 import os
 import shutil as sh
 from sklearn.model_selection import train_test_split
+from PIL import Image
 
 # RGB chips have an alpha channel
 
@@ -110,6 +111,13 @@ for color, native, mask05 in test_split_zip:
         record_loss += 1
 
 
+
+# Data augmentation functions
+
+# Need to implement functions that allow us to create augmented data records such as flipping and rotating images
+# Can most likely be done with the PIL rotate(degree) function
+def create_augmented_record(mode=0):
+    pass
 
 if record_loss == 0:
     print("All images copied to subfolder succesfully!")
