@@ -32,10 +32,18 @@ print("Full data organizer loaded.")
 cols = ['05min_Lightning_Count', '15min_Lightning_Count','30min_Lightning_Count']
 summary[cols] = summary[cols].apply(pd.to_numeric, errors='coerce')
 
-# Sort training set by number of lightning events in descending order
-summary.sort_values(by='05min_Lightning_Count', ascending=False)
+# Sort set by date
+summary.sort_values(by='EpochTime', ascending=False)
+
+# split into training and testing sets
+train_set, test_set= np.split(summary, [int(.65 *len(summary))])
+
+# Sort sets by number of lightning events in descending order
+train_set.sort_values(by='05min_Lightning_Count', ascending=False)
+test_set.sort_values(by='05min_Lightning_Count', ascending=False)
 
 # Write training set to file
+#TODO write testing set to file
 training_set = summary.head(SET_SIZE)
 training_set.to_csv(WRITE_PATH + "trainingset_descending_" + str(SET_SIZE) + ".csv", index=False)
 print(WRITE_PATH + "trainingset_descending_" + str(SET_SIZE) + ".csv" + "created with " + str(SET_SIZE) + "records!")
