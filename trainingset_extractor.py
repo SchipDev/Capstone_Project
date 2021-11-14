@@ -121,11 +121,13 @@ for color, native, mask05 in test_split_zip:
 
 
 # Data augmentation functions
-
+#TODO Data Augmentation
 # Need to implement functions that allow us to create augmented data records such as flipping and rotating images
 # Can most likely be done with the PIL rotate(degree) function
 def create_augmented_record(mode=0):
     pass
+
+
 
 if record_loss == 0:
     print("All images copied to subfolder succesfully!")
