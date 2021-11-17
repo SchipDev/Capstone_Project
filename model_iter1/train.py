@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 parent_data_dir = '/projects/cmda_capstone_2021_ti/data/training_sets'
 img_size=(400,400)
-batch_size = 9
+batch_size = 20
 
 #Create data generators
 train_input_image_paths,train_target_image_paths = get_data_paths(parent_data_dir,'Train')
@@ -48,7 +48,7 @@ cv = CSVLogger("model_iter1/model_accuracy/log.csv" , append=True , separator=',
 callbacks = [mc, rl, cv, es]
 
 # Fit Model
-history = model.fit(train_gen, epochs=40, validation_data=val_gen, callbacks=callbacks) # steps_per_epoch=len(train_gen)/batch_size
+history = model.fit(train_gen, epochs=30, validation_data=val_gen, callbacks=callbacks) # steps_per_epoch=len(train_gen)/batch_size
 
 try:
     os.mkdir("model_iter1/model_accuracy")
@@ -86,7 +86,7 @@ plt.close()
 # plt.xlabel("Epoch")
 # plt.savefig("model_iter1/model_accuracy/Accuracy_Plot.png")
 
-pred = model.predict(train_gen[0][0])
+pred = model.predict(train_gen[150][0])
 sample_image = train_gen[150][0][0]
 sample_gt = train_gen[150][1][0][:,:,0]
 pred = pred[0,:,:,0]

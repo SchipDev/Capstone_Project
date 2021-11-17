@@ -33,14 +33,14 @@ cols = ['05min_Lightning_Count', '15min_Lightning_Count','30min_Lightning_Count'
 summary[cols] = summary[cols].apply(pd.to_numeric, errors='coerce')
 
 # Sort set by date
-summary.sort_values(by='EpochTime', ascending=False)
+summary = summary.sort_values(by='EpochTime', ascending=False)
 
 # split into training and testing sets
-train_set, test_set= np.split(summary, [int(.65 *len(summary))])
+# train_set, test_set= np.split(summary, [int(.65 *len(summary))])
 
 # Sort sets by number of lightning events in descending order
-train_set.sort_values(by='05min_Lightning_Count', ascending=False)
-test_set.sort_values(by='05min_Lightning_Count', ascending=False)
+#train_set.sort_values(by='05min_Lightning_Count', ascending=False)
+#test_set.sort_values(by='05min_Lightning_Count', ascending=False)
 
 # Write training set to file
 #TODO write testing set to file
@@ -87,7 +87,11 @@ print("All subfolders created succesfully")
 # Create split objects for iteration
 tvt_split=[0.50,0.25,0.25]
 train_split,test_split = train_test_split(training_set,test_size=tvt_split[0],train_size=sum(tvt_split[1:]),shuffle=False)
-val_split,test_split = train_test_split(test_split,test_size=split[1]*2,train_size=split[2]*2,shuffle=False)
+val_split,test_split = train_test_split(test_split,test_size=tvt_split[1]*2,train_size=tvt_split[2]*2,shuffle=False)
+
+train_split = train_split.sort_values(by=cols[0], ascending=False)
+val_split = val_split.sort_values(by=cols[0], ascending=False)
+test_split = test_split.sort_values(by=cols[0], ascending=False)
 
 train_split_zip = zip(train_split["Colorized_Chip_Name"], train_split["Native_Chip_Name"], train_split["05min_Mask_Name"])
 val_split_zip = zip(val_split["Colorized_Chip_Name"], val_split["Native_Chip_Name"], val_split["05min_Mask_Name"])
